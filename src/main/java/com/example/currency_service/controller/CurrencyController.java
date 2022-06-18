@@ -30,31 +30,37 @@ public class CurrencyController {
 
         CurrencyRatesBean currentCurrencyRates = proxy.retrieveLatestCurrencyRates();
 
-        Date yesterdayDate = new Date(System.currentTimeMillis()-24*60*60*1000);
-        Format formatter = new SimpleDateFormat("yyyy-MM-dd");
-        String yesterdayDateString = formatter.format(yesterdayDate);
+        String yesterdayDateString = formatDateToString();
         CurrencyRatesBean yesterdayCurrencyRates = proxy.retrieveCurrencyRatesByDate(yesterdayDateString);
-        System.out.println("CurrentRates - " + currentCurrencyRates);
-        System.out.println("YesterdayRates - " + yesterdayCurrencyRates);
 
         Double currentRate = currentCurrencyRates.getRates().get(code);
         Double yesterdayRate = yesterdayCurrencyRates.getRates().get(code);
+        RootBean rootBean = chooseGifs(currentRate, yesterdayRate);
 
-        System.out.println("CurrentRate" + currentRate);
-        System.out.println("YesterdayRate" + yesterdayRate);
-
-
-        RootBean rootBean;
-        if (currentRate > yesterdayRate) {
-            rootBean = gifProxy.getRichGifs();
-        } else {
-            rootBean = gifProxy.getBrokeGifs();
-        }
-
-        Map<String, Map<String, String>> images = rootBean.getData().get(new Random().nextInt(rootBean.getData().size())).getImages();
-        String gifUrl = images.get("original").get("url");
+        String gifUrl = getUrlForGif(rootBean);
 
         model.addAttribute("gif_url", gifUrl);
         return "gif";
     }
+
+    private String getUrlForGif(RootBean rootBean) {
+        Map<String, Map<String, String>> images = rootBean.getData().get(new Random().nextInt(rootBean.getData().size())).getImages();
+        return images.get("original").get("url");
+    }
+
+    private String formatDateToString() {
+        Date yesterdayDate = new Date(System.currentTimeMillis()-24*60*60*1000);
+        Format formatter = new SimpleDateFormat("yyyy-MM-dd");
+        return formatter.format(yesterdayDate);
+    }
+
+    private RootBean chooseGifs(Double currentRate, Double yesterdayRate) {
+        if (currentRate > yesterdayRate) {
+            return gifProxy.getRichGifs();
+        } else {
+            return gifProxy.getBrokeGifs();
+        }
+    }
+
+
 }
