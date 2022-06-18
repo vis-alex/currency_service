@@ -5,12 +5,12 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name="open-exchange", url="https://openexchangerates.org/api")
+@FeignClient(name="${currency.rates.api.name}", url="${currency.rates.api.url}")
 public interface CurrencyRatesServiceProxy {
-    @GetMapping("/latest.json?app_id=9968744ca3284c3baf5d09cf1815ae6b")
+    @GetMapping("${currency.rates.latest}")
     public CurrencyRatesBean retrieveLatestCurrencyRates();
 
-    @GetMapping("/historical/{date}.json?app_id=9968744ca3284c3baf5d09cf1815ae6b")
+    @GetMapping("${currency.rates.by.date}")
     public CurrencyRatesBean retrieveCurrencyRatesByDate(@PathVariable String date);
 
 }
